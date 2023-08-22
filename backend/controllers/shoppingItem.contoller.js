@@ -1,6 +1,6 @@
 const ShoppingItem = require("./../models/ShoppingItem.model");
 const ErrorResponse = require("../utils/ErrorResponse");
-const asyncHandler = require("../middleware/async");
+const asyncHandler = require("../middlware/async");
 
 //@desc Get all shopping items
 //@route GET api/v1/shoppingItems

@@ -1,12 +1,17 @@
 const express = require("express");
 const dotenv = require("dotenv");
 const morgan = require("morgan");
+const connectDB = require("./config/db");
+const errorHandler = require("./middlware/error");
 
 //import routes
 shoppingItem = require("./routes/shoppingItems.route");
 
 //load env vars
 dotenv.config({ path: "./config/config.env" });
+
+// connect to database
+connectDB();
 
 //setup the server
 const app = express();
@@ -21,6 +26,9 @@ if (process.env.NODE_ENV === "development") {
 
 //mount the routes
 app.use("/api/v1/shoppingItems", shoppingItem);
+
+//error handler
+app.use(errorHandler);
 
 app.listen(PORT, () => {
   console.log(`running on ${PORT}`);
