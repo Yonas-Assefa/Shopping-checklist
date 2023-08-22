@@ -69,7 +69,6 @@ exports.createShoppingItem = asyncHandler(async (req, res, next) => {
     success: true,
     data: shoppingItem,
   });
-  progressBar();
 });
 
 //@desc Update  shoppingItem
