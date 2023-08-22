@@ -1,7 +1,7 @@
 {
-  "name": "devcamper",
+  "name": "shopping-checklist",
   "version": "1.0.0",
-  "description": "devcamper backend api",
+  "description": "shooping checklist backend api",
   "main": "server.js",
   "scripts": {
     "start": "NODE_ENV=production node server",
@@ -13,7 +13,13 @@
     "body": "^5.1.0",
     "dotenv": "^16.3.1",
     "express": "^4.18.2",
-    "parser": "^0.1.4"
+    "mongodb": "^5.7.0",
+    "mongoose": "^7.4.2",
+    "mongose": "^0.0.2-security",
+    "morgan": "^1.10.0",
+    "node-geocoder": "^4.2.0",
+    "parser": "^0.1.4",
+    "slugify": "^1.6.6"
   },
   "devDependencies": {
     "nodemon": "^3.0.1"
