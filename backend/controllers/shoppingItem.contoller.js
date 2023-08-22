@@ -6,7 +6,39 @@ const asyncHandler = require("../middlware/async");
 //@route GET api/v1/shoppingItems
 //@acces public
 exports.getShoppingItems = asyncHandler(async (req, res, next) => {
-  const shoppingItems = await ShoppingItem.find();
+  let query;
+  const reqQuery = { ...req.query };
+  const removableQuery = ["select", "sort"];
+
+  //remove these queries
+  removableQuery.forEach((params) => delete reqQuery[params]);
+
+  let queryString = JSON.stringify(reqQuery);
+
+  queryString = queryString.replace(
+    /\b(gt|gte|lt|lte|in|nin)\b/g,
+    (match) => `$${match}`
+  );
+
+  query = ShoppingItem.find(JSON.parse(queryString));
+
+  //select fileds to be displayed on response
+  if (req.query.select) {
+    const fileds = req.query.select.split(",").join(" ");
+    query = query.select(fileds);
+    console.log(fileds);
+  }
+
+  //sort by the given parameter. if not given, use timeToBuy as a default
+  if (req.query.sort) {
+    const sortBy = req.query.sort.split(",").join(" ");
+    query = query.sort(sortBy);
+    console.log(sortBy);
+  } else {
+    query = query.sort("-timeToBuy");
+  }
+
+  const shoppingItems = await query;
 
   res.status(200).json({
     count: shoppingItems.length,
@@ -37,6 +69,7 @@ exports.createShoppingItem = asyncHandler(async (req, res, next) => {
     success: true,
     data: shoppingItem,
   });
+  progressBar();
 });
 
 //@desc Update  shoppingItem
@@ -51,7 +84,7 @@ exports.updateShoppingItem = asyncHandler(async (req, res, next) => {
       runValidators: true,
     }
   );
-  res.status(201).json({ success: true, data: bootcamp });
+  res.status(201).json({ success: true, data: shoppingItem });
 
   if (!shoppingItem) {
     return next(
