@@ -6,7 +6,7 @@ const {
   createShoppingItem,
   updateShoppingItem,
   deleteShoppingItem,
-  
+   
 } = require("../controllers/shoppingItem.contoller");
 
 router.route("/").get(getShoppingItems).post(createShoppingItem);

@@ -7,6 +7,7 @@ const errorHandler = require("./middlware/error");
 //import routes
 shoppingItem = require("./routes/shoppingItems.route");
 totalCost = require("./routes/totalCost.route");
+auth = require("./routes/auth.route");
 
 //load env vars
 dotenv.config({ path: "./config/config.env" });
@@ -28,6 +29,7 @@ if (process.env.NODE_ENV === "development") {
 //mount the routes
 app.use("/api/v1/shoppingItems", shoppingItem);
 app.use("/api/v1/totalCosts", totalCost);
+app.use("/api/v1/register", auth);
 
 //error handler
 app.use(errorHandler);
