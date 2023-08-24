@@ -75,3 +75,44 @@ exports.getCurrentUser = asyncHandler(async (req, res, next) => {
     data: user,
   });
 });
+
+//@desc Update logged in user's profile
+//@route PUT api/v1/auth/updateDetails
+//@acces private
+exports.updateDetails = asyncHandler(async (req, res, next) => {
+  const fieldsToUpdate = {
+    name: req.body.name,
+    email: req.body.email,
+  };
+
+  const user = await User.findByIdAndUpdate(req.user.id, fieldsToUpdate, {
+    new: true,
+    runValidators: true,
+  });
+
+  res.status(200).json({
+    success: true,
+    data: user,
+  });
+});
+
+//@desc Update users password
+//@route PUT api/v1/auth/updatePassword
+//@acces private
+exports.updatePassword = asyncHandler(async (req, res, next) => {
+  //take the current logged in user
+  const user = await User.findById(req.user.id).select("+password");
+
+  //check if the old password entered is mached with the password saved in the database
+  isMached = await user.matchPassword(req.body.currentPassword);
+  if (!isMached) {
+    return next(new ErrorResponse("password is incorrect", 401));
+  }
+
+  //change the password
+  user.password = req.body.newPassword;
+  await user.save();
+
+  //send a token
+  sendTokenResponse(user, 200, res);
+});

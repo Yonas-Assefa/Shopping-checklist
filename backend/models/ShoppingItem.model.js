@@ -1,5 +1,6 @@
 const mongoose = require("mongoose");
 const slugify = require("slugify");
+const User = require("./User.model");
 
 const ShoppingItemSchema = new mongoose.Schema({
   name: {
@@ -29,18 +30,20 @@ const ShoppingItemSchema = new mongoose.Schema({
     type: Boolean,
     default: false,
   },
+  user: {
+    type: mongoose.Schema.ObjectId,
+    ref: User,
+    required: true,
+  },
+
   slug: {
     type: String,
   },
 });
 
-
 ShoppingItemSchema.pre("save", function (next) {
   this.slug = slugify(this.name, { lower: true });
   next();
 });
-
-
-
 
 module.exports = mongoose.model("ShoppingItem", ShoppingItemSchema);

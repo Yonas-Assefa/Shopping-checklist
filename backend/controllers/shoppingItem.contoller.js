@@ -64,6 +64,9 @@ exports.getShoppingItem = asyncHandler(async (req, res, next) => {
 //@route POST api/v1/shoppingItems
 //@acces private
 exports.createShoppingItem = asyncHandler(async (req, res, next) => {
+  //add creator of the item(item user) to the req.body
+  req.body.user = req.user.id;
+
   const shoppingItem = await ShoppingItem.create(req.body);
   res.status(201).json({
     success: true,
@@ -75,32 +78,54 @@ exports.createShoppingItem = asyncHandler(async (req, res, next) => {
 //@route PUT api/v1/shoppingItems/:id
 //@acces private
 exports.updateShoppingItem = asyncHandler(async (req, res, next) => {
-  const shoppingItem = await ShoppingItem.findByIdAndUpdate(
-    req.params.id,
-    req.body,
-    {
-      new: true,
-      runValidators: true,
-    }
-  );
-  res.status(201).json({ success: true, data: shoppingItem });
+  const shoppingItem = await ShoppingItem.findById(req.params.id);
 
   if (!shoppingItem) {
     return next(
       new ErrorResponse(`shoppingItem not found on id ${req.params.id}`, 404)
     );
   }
+
+  //check if the current user is the owner of the shopping item
+  if (shoppingItem.user.toString() !== req.user.id) {
+    return next(
+      new ErrorResponse(
+        `user with user is not allowed to update this shopping item`,
+        401
+      )
+    );
+  }
+  shoppingItem = await ShoppingItem.findOneAndUpdate(req.params.id, req.body, {
+    new: true,
+    runValidators: true,
+  });
+
+  res.status(201).json({ success: true, data: shoppingItem });
 });
 
 //@desc Delete  shoppingItem
 //@route Delte api/v1/shoppingItems/:id
 //@acces private
 exports.deleteShoppingItem = asyncHandler(async (req, res, next) => {
-  const shoppingItem = await ShoppingItem.findByIdAndDelete(req.params.id);
-  res.status(200).json({ success: true, data: {} });
+  const shoppingItem = await ShoppingItem.findById(req.params.id);
+
   if (!shoppingItem) {
     return next(
       new ErrorResponse(`shoppingItem not found on id ${req.params.id}`, 404)
     );
   }
+
+  //check if the current user is the owner of the shopping item
+  if (shoppingItem.user.toString() !== req.user.id) {
+    return next(
+      new ErrorResponse(
+        `user with user is not allowed to update this shopping item`,
+        401
+      )
+    );
+  }
+
+  shoppingItem = await ShoppingItem.findByIdAndDelete(req.params.id);
+
+  res.status(200).json({ success: true, data: {} });
 });
