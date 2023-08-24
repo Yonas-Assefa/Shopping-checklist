@@ -3,6 +3,7 @@ const dotenv = require("dotenv");
 const morgan = require("morgan");
 const connectDB = require("./config/db");
 const errorHandler = require("./middlware/error");
+var cookieParser = require("cookie-parser");
 
 //import routes
 shoppingItem = require("./routes/shoppingItems.route");
@@ -22,6 +23,9 @@ const PORT = process.env.PORT || 8000;
 //body parser
 app.use(express.json());
 
+//use cookie middlware
+app.use(cookieParser());
+
 if (process.env.NODE_ENV === "development") {
   app.use(morgan("dev"));
 }
@@ -29,7 +33,7 @@ if (process.env.NODE_ENV === "development") {
 //mount the routes
 app.use("/api/v1/shoppingItems", shoppingItem);
 app.use("/api/v1/totalCosts", totalCost);
-app.use("/api/v1/register", auth);
+app.use("/api/v1/auth", auth);
 
 //error handler
 app.use(errorHandler);

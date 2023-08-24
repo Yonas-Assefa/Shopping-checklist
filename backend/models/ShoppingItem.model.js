@@ -34,9 +34,13 @@ const ShoppingItemSchema = new mongoose.Schema({
   },
 });
 
+
 ShoppingItemSchema.pre("save", function (next) {
   this.slug = slugify(this.name, { lower: true });
   next();
 });
+
+
+
 
 module.exports = mongoose.model("ShoppingItem", ShoppingItemSchema);
