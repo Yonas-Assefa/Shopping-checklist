@@ -1,7 +1,6 @@
 const mongoose = require("mongoose");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
-
 const UserSchema = new mongoose.Schema({
   name: {
     type: String,
@@ -18,6 +17,8 @@ const UserSchema = new mongoose.Schema({
       "please add a valid email address",
     ],
   },
+  totalCost: { type: Number, defualt: 0 },
+  totalBoughtCost: { type: Number, defualt: 0 },
   password: {
     type: String,
     required: [true, "please add a password"],
@@ -44,5 +45,19 @@ UserSchema.methods.getSignedJwtToken = function (next) {
 UserSchema.methods.matchPassword = async function (enteredPassword) {
   return await bcrypt.compare(enteredPassword, this.password);
 };
+
+//reverse populate with all shopping items of the user
+UserSchema.virtual("shoppingItems", {
+  ref: "ShoppingItem",
+  localField: "_id",
+  foreignField: "user",
+  justOne: false,
+});
+
+//cascade user delete to its items
+UserSchema.pre("remove", async function (next) {
+  await this.model("ShoppingItem").deleteMany({ user: this._id });
+  next();
+});
 
 module.exports = mongoose.model("User", UserSchema);

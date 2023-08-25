@@ -46,4 +46,52 @@ ShoppingItemSchema.pre("save", function (next) {
   next();
 });
 
+// Calculate total cost middleware
+ShoppingItemSchema.statics.calculateTotalCost = async function (userId) {
+  const totalResult = await this.aggregate([
+    {
+      $match: { user: userId },
+    },
+    {
+      $group: {
+        _id: "$user",
+        totalCost: { $sum: "$cost" },
+      },
+    },
+  ]);
+  console.log(totalResult);
+
+  //calculate sum for already bought items only
+  const resultBought = await this.aggregate([
+    {
+      $match: { user: userId, isBought: true },
+    },
+    {
+      $group: {
+        _id: "$user",
+        totalBoughtCost: { $sum: "$cost" },
+      },
+    },
+  ]);
+  console.log(resultBought);
+
+  //update the users totalcost filed after a change
+  try {
+    await this.model("User").findByIdAndUpdate(userId, {
+      totalCost: totalResult[0].totalCost,
+      totalBoughtCost: resultBought[0].totalBoughtCost,
+    });
+  } catch (error) {}
+};
+
+// Call calculateTotalCost after an item is saved
+ShoppingItemSchema.post("save", function () {
+  this.constructor.calculateTotalCost(this.user);
+});
+
+// Call calculateTotalCost before deleting an item
+ShoppingItemSchema.pre("remove", function () {
+  this.constructor.calculateTotalCost(this.user);
+});
+
 module.exports = mongoose.model("ShoppingItem", ShoppingItemSchema);

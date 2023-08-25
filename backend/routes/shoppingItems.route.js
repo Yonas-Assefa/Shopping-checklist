@@ -9,7 +9,7 @@ const {
   deleteShoppingItem,
 } = require("../controllers/shoppingItem.contoller");
 
-router.route("/").get(getShoppingItems).post(protect, createShoppingItem);
+router.route("/").get(protect, getShoppingItems).post(protect, createShoppingItem);
 router
   .route("/:id")
   .get(getShoppingItem)

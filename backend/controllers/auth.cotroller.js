@@ -68,8 +68,8 @@ const sendTokenResponse = (user, statusCode, res) => {
 //@route GET api/v1/auth/getCurrentUser
 //@acces private
 exports.getCurrentUser = asyncHandler(async (req, res, next) => {
-  const user = await User.findById(req.user.id);
-
+  const user = await User.findById(req.user.id).populate("shoppingItems");
+  console.log();
   res.status(200).json({
     success: true,
     data: user,

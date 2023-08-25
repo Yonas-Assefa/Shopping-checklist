@@ -7,43 +7,45 @@ const asyncHandler = require("../middlware/async");
 //@acces public
 exports.getShoppingItems = asyncHandler(async (req, res, next) => {
   let query;
-  const reqQuery = { ...req.query };
-  const removableQuery = ["select", "sort"];
+  // const reqQuery = { ...req.query };
+  // const removableQuery = ["select", "sort"];
 
-  //remove these queries
-  removableQuery.forEach((params) => delete reqQuery[params]);
+  // //remove these queries
+  // removableQuery.forEach((params) => delete reqQuery[params]);
 
-  let queryString = JSON.stringify(reqQuery);
+  // let queryString = JSON.stringify(reqQuery);
 
-  queryString = queryString.replace(
-    /\b(gt|gte|lt|lte|in|nin)\b/g,
-    (match) => `$${match}`
-  );
+  // queryString = queryString.replace(
+  //   /\b(gt|gte|lt|lte|in|nin)\b/g,
+  //   (match) => `$${match}`
+  // );
+  const conditions = {user: req.user.id}
 
-  query = ShoppingItem.find(JSON.parse(queryString));
+  query = ShoppingItem.find(conditions);
 
   //select fileds to be displayed on response
-  if (req.query.select) {
-    const fileds = req.query.select.split(",").join(" ");
-    query = query.select(fileds);
-    console.log(fileds);
-  }
+  // if (req.query.select) {
+  //   const fileds = req.query.select.split(",").join(" ");
+  //   query = query.select(fileds);
+  //   console.log(fileds);
+  // }
 
   //sort by the given parameter. if not given, use timeToBuy as a default
-  if (req.query.sort) {
-    const sortBy = req.query.sort.split(",").join(" ");
-    query = query.sort(sortBy);
-    console.log(sortBy);
-  } else {
-    query = query.sort("-timeToBuy");
-  }
+  // if (req.query.sort) {
+  //   const sortBy = req.query.sort.split(",").join(" ");
+  //   query = query.sort(sortBy);
+  //   console.log(sortBy);
+  // } else {
+  //   query = query.sort("-timeToBuy");
+  // }
+  query = query.sort("-timeToBuy");
 
   const shoppingItems = await query;
 
   res.status(200).json({
     count: shoppingItems.length,
     success: true,
-    data: shoppingItems,
+    data: shoppingItems,  
   });
 });
 
