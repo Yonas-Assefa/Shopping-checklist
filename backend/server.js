@@ -3,6 +3,7 @@ const dotenv = require("dotenv");
 const morgan = require("morgan");
 const connectDB = require("./config/db");
 const errorHandler = require("./middlware/error");
+const cors = require("cors");
 var cookieParser = require("cookie-parser");
 
 //import routes
@@ -25,6 +26,9 @@ app.use(express.json());
 
 //use cookie middlware
 app.use(cookieParser());
+
+//use cors middleware
+app.use(cors());
 
 if (process.env.NODE_ENV === "development") {
   app.use(morgan("dev"));
