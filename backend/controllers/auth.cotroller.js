@@ -44,26 +44,6 @@ exports.login = asyncHandler(async (req, res, next) => {
   sendTokenResponse(user, 200, res);
 });
 
-//get token from model, create a cookie and return it
-const sendTokenResponse = (user, statusCode, res) => {
-  //generate token
-  const token = user.getSignedJwtToken();
-  const options = {
-    expires: new Date(
-      Date.now() + process.env.JWT_COOKIE_EXPIRE * 24 * 60 * 60 * 1000
-    ),
-    httpOnly: true,
-  };
-  if ((process.env.NODE_ENV = "production")) {
-    options.secure = true;
-  }
-
-  res.status(statusCode).cookie("token", token, options).json({
-    success: true,
-    token: token,
-  });
-};
-
 //@desc GET current loggen in user
 //@route GET api/v1/auth/getCurrentUser
 //@acces private
@@ -73,6 +53,20 @@ exports.getCurrentUser = asyncHandler(async (req, res, next) => {
   res.status(200).json({
     success: true,
     data: user,
+  });
+});
+
+//@desc LOG out current loggen in user
+//@route GET api/v1/auth/logout
+//@acces private
+exports.logout = asyncHandler(async (req, res, next) => {
+  res.cookie("token", "none", {
+    expires: new Date(Date.now() + 2 * 1000),
+    httpOnly: true,
+  });
+
+  res.status(200).json({
+    success: true,
   });
 });
 
@@ -116,3 +110,24 @@ exports.updatePassword = asyncHandler(async (req, res, next) => {
   //send a token
   sendTokenResponse(user, 200, res);
 });
+
+//get token from model, create a cookie and return it
+const sendTokenResponse = (user, statusCode, res) => {
+  //generate token
+  const token = user.getSignedJwtToken();
+  const options = {
+    expires: new Date(
+      Date.now() + process.env.JWT_COOKIE_EXPIRE * 24 * 60 * 60 * 1000
+    ),
+    httpOnly: true,
+  };
+  // if ((process.env.NODE_ENV = "production")) {
+  //   console.log("procution not", process.env.NODE_ENV);
+  //   options.secure = true;
+  // }
+
+  res.status(statusCode).cookie("token", token, options).json({
+    success: true,
+    token,
+  });
+};
