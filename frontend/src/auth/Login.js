@@ -46,6 +46,7 @@ const Login = () => {
     <form className="flex" onSubmit={(e) => handleSubmit(e)}>
       <div className="w-1/5"></div>
       <div className="w-3/5">
+        <h1 className="font-serif text-white text-lg mb-14 text-center">Login Here</h1>
         {/* display success message */}
         {!login && <p className="text-red-800">You Are Not Logged in</p>}
         <div className="mb-6">

@@ -30,7 +30,6 @@ const Register = () => {
     // make the API call
     axios(configuration)
       .then((result) => {
-        
         navigate("/login");
       })
       .catch((error) => {
@@ -40,9 +39,10 @@ const Register = () => {
   };
 
   return (
-    <form className="flex" onSubmit={(e) => handleSubmit(e)}>
+    <form className="flex mb-14" onSubmit={(e) => handleSubmit(e)}>
       <div className="w-1/5"></div>
       <div className="w-3/5">
+        <h2 class="text-center text-white text-lg font-serif">Register Here</h2>
         <div className="mb-6">
           {/* display success message */}
           {!register && (
@@ -80,7 +80,7 @@ const Register = () => {
             onChange={(e) => setEmail(e.target.value)}
             id="email"
             className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
-            placeholder="name@flowbite.com"
+            placeholder="name@shopping.com"
             required
           />
         </div>

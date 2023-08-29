@@ -54,6 +54,9 @@ const EditItem = () => {
     <form className="flex" onSubmit={handleSubmit}>
       <div className="w-1/5"></div>
       <div className="w-3/5">
+        <h1 className="font-serif text-white text-lg mb-8 text-center">
+          Login Here
+        </h1>
         <div className="mb-6">
           <label
             htmlFor="name"

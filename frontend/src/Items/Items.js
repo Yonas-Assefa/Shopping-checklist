@@ -161,7 +161,7 @@ const Items = () => {
             Your Shopping Items List
           </h1>
 
-          <div className="w-full bg-gray-200 rounded-full dark:bg-gray-700">
+          <div className=" bg-gray-200 rounded-full dark:bg-gray-700">
             <div
               className="bg-blue-600 text-xs font-medium text-blue-100 text-center p-0.5 leading-none rounded-full"
               style={{ width: `${percentage}%` }}
@@ -169,6 +169,9 @@ const Items = () => {
               {Math.round(percentage)}%
             </div>
           </div>
+          <p>
+              {totalBoughtCost} / {totalCost}
+            </p>
         </div>
         <div className="flex">
           <div className="w-1/5"></div>
