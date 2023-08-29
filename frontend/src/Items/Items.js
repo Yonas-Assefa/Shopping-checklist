@@ -10,14 +10,8 @@ const Items = () => {
   const [items, setItems] = useState([]);
   const [totalCost, setTotalCost] = useState(0);
   const [totalBoughtCost, setTotalBoughtCost] = useState(0);
+  let [percentage, setPercentage] = useState(0);
   const navigate = useNavigate();
-
-  //redirect to the edit page
-  const handleEditClick = (item) => {
-    navigate(`/items/${item._id}`, {
-      state: item,
-    });
-  };
 
   // useEffect automatically executes once the page is fully loaded
   useEffect(() => {
@@ -34,102 +28,121 @@ const Items = () => {
         const itemsArray = result.data.data;
         console.log("itemsArray:", itemsArray); // Log itemsArray to verify data
         setItems(itemsArray);
-        // Log items after update
       })
       .catch((error) => {
         console.error("API Error:", error);
       });
   }, []);
 
-  //delete when the delete button pressed
-  const onDelete = (id) => {
-    console.log("am pressed");
-    const configuration = {
-      method: "delete",
-      url: `http://localhost:8000/api/v1/shoppingItems/${id}`,
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const response = await axios.get(
+          "http://localhost:8000/api/v1/totalCosts",
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        );
+
+        setTotalCost(response.data.totalCost);
+        setTotalBoughtCost(response.data.totalBoughtCost);
+
+        calculatePercentage();
+      } catch (error) {
+        console.error("API Error:", error);
+      }
     };
 
-    // make the API call
-    axios(configuration);
-    setItems((prevItems) => prevItems.filter((item) => item._id !== id));
+    fetchData();
+  }, []);
 
-    // Update totalCost and totalBoughtCost locally
-    const deletedItem = items.find((item) => item._id === id);
-    setTotalCost((prevTotalCost) => prevTotalCost - deletedItem.cost);
-    if (deletedItem.isBought) {
-      setTotalBoughtCost(
-        (prevTotalBoughtCost) => prevTotalBoughtCost - deletedItem.cost
-      );
+  useEffect(() => {
+    calculatePercentage();
+  }, [items, totalCost, totalBoughtCost]);
+
+  const calculatePercentage = () => {
+    if (totalCost > 0) {
+      const avg = (totalBoughtCost / totalCost) * 100;
+      setPercentage(avg);
+    } else {
+      setPercentage(0);
     }
   };
 
-  //add an item
-  const handleAddClick = () => {
-    navigate(`/items/addItems`);
+  const onDelete = async (id, cost, isBought) => {
+    try {
+      // Delete the item
+      await axios.delete(`http://localhost:8000/api/v1/shoppingItems/${id}`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      // Update state
+      setItems((prevItems) => prevItems.filter((item) => item._id !== id));
+
+      // Update totalCost and totalBoughtCost
+      setTotalCost((prevTotalCost) => prevTotalCost - cost);
+      if (isBought) {
+        setTotalBoughtCost((prevTotalBoughtCost) => prevTotalBoughtCost - cost);
+      }
+
+      // Recalculate percentage
+      calculatePercentage();
+    } catch (error) {
+      console.error("API Error:", error);
+    }
+    window.location.reload();
   };
 
-  //handle the isBougt toggle
-  const handleToggleIsBought = async (id, currentIsBought) => {
+  const handleToggleIsBought = async (id, currentIsBought, cost) => {
     const newIsBought = !currentIsBought;
 
-    const configuration = {
-      method: "put",
-      url: `http://localhost:8000/api/v1/shoppingItems/${id}`,
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-      data: {
-        isBought: newIsBought,
-      },
-    };
-
     try {
-      await axios(configuration);
+      // Toggle isBought for the item
+      await axios.put(
+        `http://localhost:8000/api/v1/shoppingItems/${id}`,
+        { isBought: newIsBought },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+
+      // Update state
       setItems((prevItems) =>
         prevItems.map((item) =>
           item._id === id ? { ...item, isBought: newIsBought } : item
         )
       );
 
-      // Update totalBoughtCost locally
-      setTotalBoughtCost((prevTotalBoughtCost) =>
-        newIsBought
-          ? prevTotalBoughtCost + items.find((item) => item._id === id).cost
-          : prevTotalBoughtCost - items.find((item) => item._id === id).cost
-      );
+      // Update totalBoughtCost
+      if (newIsBought) {
+        setTotalBoughtCost((prevTotalBoughtCost) => prevTotalBoughtCost + cost);
+      } else {
+        setTotalBoughtCost((prevTotalBoughtCost) => prevTotalBoughtCost - cost);
+      }
+
+      // Recalculate percentage
+      calculatePercentage();
     } catch (error) {
       console.error("API Error:", error);
     }
+    window.location.reload();
   };
 
-  //calculate the cost
-  useEffect(() => {
-    const configuration = {
-      method: "get",
-      url: "http://localhost:8000/api/v1/auth/getCurrentUser",
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    };
+  const handleAddClick = () => {
+    navigate(`/items/addItems`);
+  };
 
-    axios(configuration)
-      .then((result) => {
-        const response = result.data.data;
-        setTotalCost(response.totalCost);
-        setTotalBoughtCost(response.totalBoughtCost);
-      })
-      .catch((error) => {
-        console.error("API Error:", error);
-      });
-  }, []);
-
-  const percentage = (totalBoughtCost / totalCost) * 100;
-
-  console.log("items after setItems:", items);
-
+  const handleEditClick = (item) => {
+    navigate(`/items/${item._id}`, {
+      state: item,
+    });
+  };
   return (
     <div className="bg-gray-300 py-10">
       <div className="max-w-screen-xl mx-auto px-6">
@@ -147,6 +160,7 @@ const Items = () => {
           <h1 className="text-4xl font-bold font-serif uppercase">
             Your Shopping Items List
           </h1>
+
           <div className="w-full bg-gray-200 rounded-full dark:bg-gray-700">
             <div
               className="bg-blue-600 text-xs font-medium text-blue-100 text-center p-0.5 leading-none rounded-full"
@@ -216,7 +230,9 @@ const Items = () => {
                   <button
                     type="button"
                     href="#"
-                    onClick={() => onDelete(item._id)}
+                    onClick={() => {
+                      onDelete(item._id);
+                    }}
                     className="inline-block mx-2 rounded bg-primary bg-red-500 px-6 pb-2 pt-2.5 text-xs font-medium uppercase leading-normal text-white shadow-[0_4px_9px_-4px_#3b71ca] transition duration-150 ease-in-out hover:bg-primary-600 hover:shadow-[0_8px_9px_-4px_rgba(59,113,202,0.3),0_4px_18px_0_rgba(59,113,202,0.2)] focus:bg-primary-600 focus:shadow-[0_8px_9px_-4px_rgba(59,113,202,0.3),0_4px_18px_0_rgba(59,113,202,0.2)] focus:outline-none focus:ring-0 active:bg-primary-700 active:shadow-[0_8px_9px_-4px_rgba(59,113,202,0.3),0_4px_18px_0_rgba(59,113,202,0.2)] dark:shadow-[0_4px_9px_-4px_rgba(59,113,202,0.5)] dark:hover:shadow-[0_8px_9px_-4px_rgba(59,113,202,0.2),0_4px_18px_0_rgba(59,113,202,0.1)] dark:focus:shadow-[0_8px_9px_-4px_rgba(59,113,202,0.2),0_4px_18px_0_rgba(59,113,202,0.1)] dark:active:shadow-[0_8px_9px_-4px_rgba(59,113,202,0.2),0_4px_18px_0_rgba(59,113,202,0.1)]"
                   >
                     Delete
@@ -227,7 +243,6 @@ const Items = () => {
                 </div>
               ))
             )}
-            
           </div>
 
           <div className="w-1/5"></div>

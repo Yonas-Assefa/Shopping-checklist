@@ -46,6 +46,31 @@ ShoppingItemSchema.pre("save", function (next) {
   next();
 });
 
+// Calculate total bought cost middleware
+ShoppingItemSchema.statics.calculateTotalBoughtCost = async function (userId) {
+  console.log("Am even here in the second method");
+  const result = await this.aggregate([
+    {
+      $match: { user: userId, isBought: true },
+    },
+    {
+      $group: {
+        _id: "$user",
+        totalBoughtCost: { $sum: "$cost" },
+      },
+    },
+  ]);
+  console.log("Total Bought Result:", result);
+
+  // Update the user's total bought cost fields after a change
+  try {
+    await this.model("User").findByIdAndUpdate(userId, {
+      totalBoughtCost: result[0].totalBoughtCost,
+    });
+    console.log("User total bought costs updated successfully");
+  } catch (error) {}
+};
+
 // Calculate total cost middleware
 ShoppingItemSchema.statics.calculateTotalCost = async function (userId) {
   const totalResult = await this.aggregate([
@@ -59,39 +84,29 @@ ShoppingItemSchema.statics.calculateTotalCost = async function (userId) {
       },
     },
   ]);
-  console.log(totalResult);
+  console.log("Total Result:", totalResult);
 
-  //calculate sum for already bought items only
-  const resultBought = await this.aggregate([
-    {
-      $match: { user: userId, isBought: true },
-    },
-    {
-      $group: {
-        _id: "$user",
-        totalBoughtCost: { $sum: "$cost" },
-      },
-    },
-  ]);
-  console.log(resultBought);
-
-  //update the users totalcost filed after a change
+  // Update the user's total cost fields after a change
   try {
     await this.model("User").findByIdAndUpdate(userId, {
       totalCost: totalResult[0].totalCost,
-      totalBoughtCost: resultBought[0].totalBoughtCost,
     });
+    console.log("User total costs updated successfully");
   } catch (error) {}
 };
 
 // Call calculateTotalCost after an item is saved
-ShoppingItemSchema.post("save", function () {
-  this.constructor.calculateTotalCost(this.user);
+ShoppingItemSchema.post("deleteOne", async function () {
+  // await this.constructor.calculateTotalBoughtCost(this.user);
+  // await this.constructor.calculateTotalCost(this.user);
 });
 
-// Call calculateTotalCost before deleting an item
-ShoppingItemSchema.pre("remove", function () {
-  this.constructor.calculateTotalCost(this.user);
+// Call calculateTotalCost after deleting an item
+ShoppingItemSchema.post("save", async function () {
+  console.log("deleteOne called");
+  console.log(typeof this.constructor.calculateTotalBoughtCost(this.user));
+  await this.constructor.calculateTotalBoughtCost(this.user);
+  await this.constructor.calculateTotalCost(this.user);
 });
 
 module.exports = mongoose.model("ShoppingItem", ShoppingItemSchema);

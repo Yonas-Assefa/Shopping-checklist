@@ -17,8 +17,8 @@ const UserSchema = new mongoose.Schema({
       "please add a valid email address",
     ],
   },
-  totalCost: { type: Number, defualt: 0 },
-  totalBoughtCost: { type: Number, defualt: 0 },
+  totalCost: { type: Number },
+  totalBoughtCost: { type: Number },
   password: {
     type: String,
     required: [true, "please add a password"],

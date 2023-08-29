@@ -19,7 +19,7 @@ exports.getShoppingItems = asyncHandler(async (req, res, next) => {
   //   /\b(gt|gte|lt|lte|in|nin)\b/g,
   //   (match) => `$${match}`
   // );
-  const conditions = {user: req.user.id}
+  const conditions = { user: req.user.id };
 
   query = ShoppingItem.find(conditions);
 
@@ -45,7 +45,7 @@ exports.getShoppingItems = asyncHandler(async (req, res, next) => {
   res.status(200).json({
     count: shoppingItems.length,
     success: true,
-    data: shoppingItems,  
+    data: shoppingItems,
   });
 });
 
@@ -80,7 +80,7 @@ exports.createShoppingItem = asyncHandler(async (req, res, next) => {
 //@route PUT api/v1/shoppingItems/:id
 //@acces private
 exports.updateShoppingItem = asyncHandler(async (req, res, next) => {
-  const shoppingItem = await ShoppingItem.findById(req.params.id);
+  let shoppingItem = await ShoppingItem.findById(req.params.id);
 
   if (!shoppingItem) {
     return next(
@@ -97,10 +97,12 @@ exports.updateShoppingItem = asyncHandler(async (req, res, next) => {
       )
     );
   }
-  shoppingItem = await ShoppingItem.findOneAndUpdate(req.params.id, req.body, {
-    new: true,
-    runValidators: true,
-  });
+  shoppingItem = await ShoppingItem.findByIdAndUpdate(
+    { _id: req.params.id }, // Use an object with the _id field
+    req.body,
+    { new: true, runValidators: true }
+  );
+  shoppingItem.save();
 
   res.status(201).json({ success: true, data: shoppingItem });
 });
@@ -109,7 +111,7 @@ exports.updateShoppingItem = asyncHandler(async (req, res, next) => {
 //@route Delte api/v1/shoppingItems/:id
 //@acces private
 exports.deleteShoppingItem = asyncHandler(async (req, res, next) => {
-  const shoppingItem = await ShoppingItem.findById(req.params.id);
+  let shoppingItem = await ShoppingItem.findById(req.params.id);
 
   if (!shoppingItem) {
     return next(
@@ -127,7 +129,8 @@ exports.deleteShoppingItem = asyncHandler(async (req, res, next) => {
     );
   }
 
-  shoppingItem = await ShoppingItem.findByIdAndDelete(req.params.id);
+  await ShoppingItem.deleteOne();
+  
 
   res.status(200).json({ success: true, data: {} });
 });

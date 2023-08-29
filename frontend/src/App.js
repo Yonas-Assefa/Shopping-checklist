@@ -8,6 +8,7 @@ import Items from "./Items/Items";
 import EditItem from "./Items/EditItemForm";
 import Register from "./auth/Register";
 import Login from "./auth/Login";
+import Logout from "./auth/Logout";
 import ProtectedRoutes from "./auth/ProtectedRoutes";
 import AddItemForm from "./Items/AddItemForm";
 
@@ -22,6 +23,7 @@ const App = () => {
           <Route path="/" element={<Hero />} />
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
+          
           <Route
             path="/items"
             element={
