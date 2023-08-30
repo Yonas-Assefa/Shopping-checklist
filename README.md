@@ -1,34 +1,61 @@
-# Shopping Checklist API
+Shopping Checklist
+This repository contains information about a full-stack shopping items checklist, where users can:
 
-This repository contains the backend for a shopping checklist application. It provides API endpoints to manage shopping items and calculate total costs.
+Create an account and register
+Add new shopping items
+Update existing shopping items
+Delete shopping items they no longer want
+View the percentage of items bought out of the total items in a progress bar
+Backend
+How to Start the Backend
+To run the backend:
 
-## API Endpoints
+Download the repository
+Navigate to the project directory and then to the "backend" folder
+Run the command: npm run dev
+API Endpoints
+Shopping Items
+GET /api/v1/shoppingItems
 
-- **GET /api/v1/shoppingItems**
-  - Get all available shopping items.
+Retrieve all available shopping items sorted by their date.
+GET /api/v1/shoppingItems/:id
 
-- **GET /api/v1/shoppingItems/:id**
-  - Get details of a specific shopping item.
+Get details of a specific shopping item.
+POST /api/v1/shoppingItems
 
-- **POST /api/v1/shoppingItems**
-  - Create a new shopping item.
+Create a new shopping item.
+PUT /api/v1/shoppingItems/:id
 
-- **PUT /api/v1/shoppingItems/:id**
-  - Update or edit a specific shopping item.
+Update or edit a specific shopping item.
+DELETE /api/v1/shoppingItems/:id
 
-- **DELETE /api/v1/shoppingItems/:id**
-  - Delete a specific shopping item.
+Delete a specific shopping item.
+Authentication
+POST /api/v1/auth/register
 
-- **GET /api/v1/totalCosts**
-  - Get the sum of costs for all shopping items.
-  - Get the sum of costs for all already bought shopping items.
+Create a new user account.
+POST /api/v1/auth/login
 
-## Installation and Usage
+Log in with email and password.
+GET /api/v1/auth/logout
 
-To run the backend server:
+Log the user out.
+GET /api/v1/getCurrentUser
 
-1. Clone the project:
-2 install dependencies
-  npm install
-3 run the server
-  npm run start
+Get the currently logged-in user.
+PUT /api/v1/auth/updateDetails
+
+Update user information.
+PUT /api/v1/auth/updatePassword
+
+Change the password for the current user.
+Total Cost
+GET /api/v1/totalCosts
+Retrieve the total costs and total bought cost of the current user's items.
+Frontend
+How to Start the Frontend
+To run the frontend:
+
+Download the repository
+Navigate to the project directory and then to the "frontend" folder
+Run the command: npm start
