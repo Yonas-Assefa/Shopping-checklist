@@ -14,6 +14,7 @@ this repository contains information about a fullstack shopping items checklist,
 To run the backedn:
 -download th repo
 -cd to the project directory and then to backend
+-npm install
 -npm run dev
 
 ## API Endpoints
@@ -76,4 +77,5 @@ To run the backedn:
 To run the backend:
 -download th repo
 -cd to the project directory and then to frontend
+-npm install
 -npm start
